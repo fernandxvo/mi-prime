@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>31 Días para mi PRIME — Tracker Interactivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4efe4;
+    --ink:#17171c;
+    --ink-soft:rgba(23,23,28,.75);
+    --accent:#c9541f;
+    --line:rgba(23,23,28,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(1200px 800px at 80% -10%, rgba(201,84,31,.06), transparent 60%),
+      radial-gradient(1000px 700px at -10% 110%, rgba(23,23,28,.05), transparent 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    min-height:100vh;
+    padding:28px clamp(16px,4vw,56px) 40px;
+    display:flex;flex-direction:column;gap:18px;
+  }
+  header{
+    display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;
+    border-bottom:2px solid var(--ink);padding-bottom:14px;
+  }
+  .brand h1{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(34px,5vw,58px);line-height:.95;letter-spacing:-.5px;
+  }
+  .brand h1 span{color:var(--accent);}
+  .brand p{font-weight:700;font-size:clamp(16px,2vw,22px);letter-spacing:.5px;margin-top:2px;}
+  .month-box{display:flex;flex-direction:column;gap:4px;min-width:220px;}
+  .month-box label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--ink-soft);}
+  .month-box input{
+    background:transparent;border:none;border-bottom:2px solid var(--ink);
+    font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--ink);
+    padding:4px 2px;outline:none;
+  }
+  .month-box input:focus{border-color:var(--accent);}
+  .stats{
+    display:flex;gap:18px;align-items:center;
+    font-weight:700;font-size:14px;color:var(--ink-soft);
+  }
+  .stats b{color:var(--ink);font-size:18px;}
+  .layout{
+    flex:1;
+    display:grid;grid-template-columns:minmax(210px,280px) 1fr minmax(220px,300px);
+    gap:clamp(14px,3vw,40px);align-items:start;
+  }
+  /* ---- hábitos ---- */
+  .habits h3{
+    font-size:15px;font-weight:700;margin-bottom:10px;letter-spacing:1px;
+  }
+  .habits ol{list-style:none;display:flex;flex-direction:column;}
+  .habits li{
+    display:flex;align-items:baseline;gap:8px;padding:7px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .habits li .num{font-weight:700;font-size:15px;min-width:16px;}
+  .habits li input{
+    flex:1;min-width:0;background:transparent;border:none;
+    border-bottom:1px dashed transparent;
+    font-family:'Caveat',cursive;font-size:21px;color:var(--ink);
+    padding:0 2px;outline:none;
+  }
+  .habits li input:focus{border-bottom-color:var(--accent);}
+  .habits li input::placeholder{color:rgba(23,23,28,.28);}
+  .palette{display:flex;gap:8px;margin-top:16px;align-items:center;}
+  .palette span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-soft);margin-right:2px;}
+  .sw{
+    width:22px;height:22px;border-radius:50%;border:2px solid var(--paper);
+    outline:2px solid transparent;cursor:pointer;padding:0;
+    box-shadow:0 0 0 1px var(--line);transition:transform .15s;
+  }
+  .sw:hover{transform:scale(1.15);}
+  .sw.sel{outline-color:var(--ink);}
+  /* ---- tracker ---- */
+  .tracker{display:flex;justify-content:center;}
+  .tracker canvas{
+    width:min(100%,640px);height:auto;cursor:crosshair;
+    touch-action:manipulation;
+  }
+  .hint{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:6px;}
+  /* ---- notas ---- */
+  .notes{display:flex;flex-direction:column;gap:20px;}
+  .notes label{font-weight:700;font-size:15px;display:block;margin-bottom:6px;letter-spacing:.5px;}
+  .notes textarea{
+    width:100%;min-height:150px;resize:vertical;
+    background:rgba(255,255,255,.45);
+    border:2px solid var(--ink);border-radius:2px;
+    font-family:'Caveat',cursive;font-size:22px;color:var(--ink);
+    padding:12px 14px;outline:none;line-height:1.35;
+  }
+  .notes textarea:focus{border-color:var(--accent);background:rgba(255,255,255,.7);}
+  footer{
+    border-top:2px solid var(--ink);padding-top:16px;
+    display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+  }
+  .quote{
+    font-family:'Caveat',cursive;font-size:clamp(19px,2.4vw,26px);
+    max-width:760px;line-height:1.25;color:var(--ink);
+  }
+  .quote b{font-family:'Space Grotesk',sans-serif;font-size:.62em;letter-spacing:1px;}
+  .actions{display:flex;gap:10px;}
+  .btn{
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
+    letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+    padding:10px 18px;border:2px solid var(--ink);background:var(--ink);color:var(--paper);
+    transition:all .15s;
+  }
+  .btn:hover{background:var(--accent);border-color:var(--accent);}
+  .btn.ghost{background:transparent;color:var(--ink);}
+  .btn.ghost:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  @media (max-width:980px){
+    .layout{grid-template-columns:1fr;}
+    .tracker{order:-1;}
+    .habits ol{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;}
+    .notes{flex-direction:row;flex-wrap:wrap;}
+    .notes>div{flex:1;min-width:240px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>31 DÍAS <span>●</span></h1>
+    <p>para MI PRIME</p>
+  </div>
+  <div class="month-box">
+    <label>Mes / Año</label>
+    <input id="monthInput" type="text" placeholder="Octubre 2026" maxlength="24">
+  </div>
+  <div class="stats">
+    <div>Progreso <b id="pct">0%</b></div>
+    <div>Días perfectos <b id="perfect">0/31</b></div>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="habits">
+    <h3>Hábitos:</h3>
+    <ol id="habitList"></ol>
+    <div class="palette">
+      <span>Tinta</span>
+      <button class="sw sel" data-c="#17171c" style="background:#17171c" title="Tinta"></button>
+      <button class="sw" data-c="#c9541f" style="background:#c9541f" title="Naranja"></button>
+      <button class="sw" data-c="#3e7d4f" style="background:#3e7d4f" title="Verde"></button>
+      <button class="sw" data-c="#3b5b8f" style="background:#3b5b8f" title="Azul"></button>
+      <button class="sw" data-c="#b0447c" style="background:#b0447c" title="Magenta"></button>
+    </div>
+  </aside>
+
+  <section class="tracker">
+    <div>
+      <canvas id="cv" width="700" height="700"></canvas>
+      <p class="hint">Toca las casillas para marcar tus hábitos de cada día ✦ se guarda solo</p>
+    </div>
+  </section>
+
+  <aside class="notes">
+    <div>
+      <label for="less">Hacer Menos</label>
+      <textarea id="less" placeholder="Ej. procrastinar, redes sociales..."></textarea>
+    </div>
+    <div>
+      <label for="more">Hacer Más</label>
+      <textarea id="more" placeholder="Ej. entrenar, leer, dormir bien..."></textarea>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <p class="quote">"Si sabes lo que vales, ve y consigue lo que mereces, pero no se trata de lo fuerte que golpeas, sino de cuánto resistes y sigues avanzando..." <b>— Rocky Balboa</b></p>
+  <div class="actions">
+    <button class="btn" id="btnPng">Descargar PNG</button>
+    <button class="btn ghost" id="btnReset">Reiniciar mes</button>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var DAYS = 31, HABITS = 8, SWEEP = 300, SEG = SWEEP / DAYS;
+  var ACCENT = "#c9541f", INK = "#17171c";
+  var S = 700;
+  var cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+  var KEY = "prime31_v1";
+
+  /* ---------- estado ---------- */
+  function defaultState(){
+    return { month:"", habits:["","","","","","","",""], cells:new Array(DAYS).fill(0),
+             less:"", more:"", color:INK };
+  }
+  var state = defaultState();
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(raw){
+      var loaded = JSON.parse(raw);
+      state.month = loaded.month || "";
+      state.less  = loaded.less  || "";
+      state.more  = loaded.more  || "";
+      state.color = loaded.color || INK;
+      if(Array.isArray(loaded.habits)) for(var i=0;i<8;i++) state.habits[i]=loaded.habits[i]||"";
+      if(Array.isArray(loaded.cells))  for(var d=0;d<DAYS;d++) state.cells[d]=loaded.cells[d]|0;
+    }
+  }catch(e){}
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+  /* ---------- geometría ---------- */
+  function geom(){
+    var rHole = S*0.155, rOuter = S*0.47;
+    return { cx:S/2, cy:S/2, rHole:rHole, rOuter:rOuter, ringW:(rOuter-rHole)/HABITS };
+  }
+  function rad(deg){ return deg*Math.PI/180; }
+
+  /* ---------- dibujo ---------- */
+  function cellPath(c,cx,cy,r0,r1,a0,a1){
+    c.beginPath();
+    c.arc(cx,cy,r1,a0,a1,false);
+    c.arc(cx,cy,r0,a1,a0,true);
+    c.closePath();
+  }
+
+  function drawGrid(c, cx, cy, rHole, rOuter, withText){
+    var ringW = (rOuter-rHole)/HABITS;
+    var gapA = 0.55*Math.PI/180, gapR = Math.max(0.8, ringW*0.04);
+    var today = new Date().getDate();
+
+    for(var d=0; d<DAYS; d++){
+      var a0 = rad(-90 + d*SEG) + gapA;
+      var a1 = rad(-90 + (d+1)*SEG) - gapA;
+      for(var h=0; h<HABITS; h++){
+        var r0 = rHole + h*ringW + gapR;
+        var r1 = rHole + (h+1)*ringW - gapR;
+        cellPath(c,cx,cy,r0,r1,a0,a1);
+        if(state.cells[d] & (1<<h)){
+          c.fillStyle = state.color;
+          c.fill();
+        }
+        c.strokeStyle = INK;
+        c.lineWidth = 1.1;
+        c.globalAlpha = 0.9;
+        c.stroke();
+        c.globalAlpha = 1;
+      }
+    }
+    if(hover && withText){
+      var hr0 = rHole + hover.h*ringW + gapR;
+      var hr1 = rHole + (hover.h+1)*ringW - gapR;
+      cellPath(c,cx,cy,hr0,hr1, rad(-90+hover.d*SEG)+gapA, rad(-90+(hover.d+1)*SEG)-gapA);
+      c.fillStyle = "rgba(201,84,31,.14)"; c.fill();
+      c.strokeStyle = ACCENT; c.lineWidth = 1.6; c.stroke();
+    }
+
+    /* números de días */
+    c.font = "600 13px 'Space Grotesk', sans-serif";
+    c.textAlign = "center"; c.textBaseline = "middle";
+    for(var d2=0; d2<DAYS; d2++){
+      var am = rad(-90 + (d2+0.5)*SEG);
+      var rr = rOuter + 17;
+      var x = cx + Math.cos(am)*rr, y = cy + Math.sin(am)*rr;
+      c.save();
+      c.translate(x,y);
+      c.rotate(am + Math.PI/2);
+      c.fillStyle = (d2+1===today) ? ACCENT : INK;
+      if(d2+1===today){ c.font = "700 14px 'Space Grotesk', sans-serif"; }
+      else { c.font = "600 13px 'Space Grotesk', sans-serif"; }
+      c.fillText(String(d2+1), 0, 0);
+      c.restore();
+    }
+
+    if(withText){
+      /* centro: Mes/Año */
+      c.fillStyle = INK;
+      c.font = "700 19px 'Space Grotesk', sans-serif";
+      c.fillText("Mes/Año:", cx, cy-10);
+      c.font = "600 16px 'Space Grotesk', sans-serif";
+      c.fillStyle = "rgba(23,23,28,.8)";
+      c.fillText(state.month || "—", cx, cy+14);
+      c.strokeStyle = "rgba(23,23,28,.7)";
+      c.lineWidth = 1.4;
+      c.beginPath();
+      c.moveTo(cx-42, cy+32); c.lineTo(cx+42, cy+32);
+      c.moveTo(cx-30, cy+41); c.lineTo(cx+30, cy+41);
+      c.stroke();
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,S,S);
+    var g = geom();
+    drawGrid(ctx, g.cx, g.cy, g.rHole, g.rOuter, true);
+  }
+
+  /* ---------- interacción ---------- */
+  var hover = null;
+  function locate(e){
+    var rect = cv.getBoundingClientRect();
+    var scale = S / rect.width;
+    var x = (e.clientX - rect.left)*scale;
+    var y = (e.clientY - rect.top)*scale;
+    var g = geom();
+    var dx = x-g.cx, dy = y-g.cy;
+    var r = Math.sqrt(dx*dx+dy*dy);
+    if(r < g.rHole || r > g.rOuter) return null;
+    var deg = (Math.atan2(dy,dx)*180/Math.PI + 360) % 360;
+    var rel = (deg + 90) % 360;
+    if(rel > SWEEP) return null;
+    var d = Math.min(DAYS-1, Math.floor(rel/SEG));
+    var h = Math.min(HABITS-1, Math.floor((r-g.rHole)/g.ringW));
+    return {d:d, h:h};
+  }
+
+  cv.addEventListener("click", function(e){
+    var p = locate(e);
+    if(!p) return;
+    state.cells[p.d] ^= (1<<p.h);
+    save(); draw(); stats();
+  });
+  cv.addEventListener("mousemove", function(e){
+    var p = locate(e);
+    var changed = (!p && hover) || (p && (!hover || p.d!==hover.d || p.h!==hover.h));
+    hover = p;
+    cv.style.cursor = p ? "pointer" : "crosshair";
+    if(changed) draw();
+  });
+  cv.addEventListener("mouseleave", function(){ hover=null; draw(); });
+
+  /* ---------- UI ---------- */
+  var habitList = document.getElementById("habitList");
+  for(var i=0;i<HABITS;i++){
+    (function(i){
+      var li = document.createElement("li");
+      var num = document.createElement("span"); num.className="num"; num.textContent=(i+1)+".";
+      var inp = document.createElement("input");
+      inp.type="text"; inp.maxLength=28; inp.value=state.habits[i];
+      inp.placeholder="Hábito "+(i+1);
+      inp.addEventListener("input", function(){ state.habits[i]=inp.value; save(); });
+      li.appendChild(num); li.appendChild(inp);
+      habitList.appendChild(li);
+    })(i);
+  }
+
+  var monthInput = document.getElementById("monthInput");
+  monthInput.value = state.month;
+  monthInput.addEventListener("input", function(){ state.month=monthInput.value; save(); draw(); });
+
+  var less = document.getElementById("less"), more = document.getElementById("more");
+  less.value = state.less; more.value = state.more;
+  less.addEventListener("input", function(){ state.less=less.value; save(); });
+  more.addEventListener("input", function(){ state.more=more.value; save(); });
+
+  var swatches = document.querySelectorAll(".sw");
+  swatches.forEach(function(b){
+    if(b.dataset.c === state.color){
+      swatches.forEach(function(x){x.classList.remove("sel")});
+      b.classList.add("sel");
+    }
+    b.addEventListener("click", function(){
+      state.color = b.dataset.c; save(); draw();
+      swatches.forEach(function(x){x.classList.remove("sel")});
+      b.classList.add("sel");
+    });
+  });
+
+  function popcount(n){ n=n-((n>>1)&0x55555555); n=(n&0x33333333)+((n>>2)&0x33333333); return (((n+(n>>4))&0x0F0F0F0F)*0x01010101)>>24; }
+  function stats(){
+    var filled=0, perfect=0;
+    for(var d=0;d<DAYS;d++){ filled+=popcount(state.cells[d]); if(state.cells[d]===255) perfect++; }
+    document.getElementById("pct").textContent = Math.round(filled/(DAYS*HABITS)*100)+"%";
+    document.getElementById("perfect").textContent = perfect+"/31";
+  }
+
+  document.getElementById("btnReset").addEventListener("click", function(){
+    if(confirm("¿Reiniciar todo el mes? Se borrarán tus marcas.")){
+      state = defaultState(); state.color = document.querySelector(".sw.sel").dataset.c;
+      save();
+      monthInput.value=""; less.value=""; more.value="";
+      habitList.querySelectorAll("input").forEach(function(inp){inp.value=""});
+      draw(); stats();
+    }
+  });
+
+  /* ---------- exportar PNG ---------- */
+  function wrapText(c, text, x, y, maxW, lh){
+    var words = text.split(/\s+/), line = "";
+    for(var i=0;i<words.length;i++){
+      var test = line ? line+" "+words[i] : words[i];
+      if(c.measureText(test).width > maxW && line){
+        c.fillText(line, x, y); y += lh; line = words[i];
+      } else line = test;
+    }
+    if(line){ c.fillText(line, x, y); y += lh; }
+    return y;
+  }
+
+  document.getElementById("btnPng").addEventListener("click", function(){
+    var W=1700, H=1260;
+    var off = document.createElement("canvas"); off.width=W; off.height=H;
+    var c = off.getContext("2d");
+    c.fillStyle = "#f4efe4"; c.fillRect(0,0,W,H);
+    c.fillStyle = INK; c.strokeStyle = INK;
+
+    /* título */
+    c.textAlign="left"; c.textBaseline="alphabetic";
+    c.font = "92px 'Archivo Black', sans-serif";
+    c.fillText("31 DÍAS", 1130, 130);
+    c.font = "700 42px 'Space Grotesk', sans-serif";
+    c.fillText("para MI PRIME", 1132, 188);
+
+    /* círculo */
+    var cx=560, cy=650, rOuter=392, rHole=96;
+    drawGrid(c, cx, cy, rHole, rOuter, true);
+
+    /* hábitos a la izquierda con líneas */
+    c.font = "700 26px 'Space Grotesk', sans-serif";
+    c.fillText("Hábitos:", 60, 330);
+    var ringW = (rOuter-rHole)/HABITS;
+    for(var i=0;i<HABITS;i++){
+      var y = 378 + i*44;
+      c.font = "700 22px 'Space Grotesk', sans-serif";
+      c.fillText((i+1)+".", 60, y);
+      c.font = "34px 'Caveat', cursive";
+      c.fillStyle = state.habits[i] ? INK : "rgba(23,23,28,.25)";
+      c.fillText(state.habits[i] || "· · ·", 92, y+4);
+      c.fillStyle = INK;
+      var rMid = rHole + (i+0.5)*ringW;
+      c.strokeStyle = "rgba(23,23,28,.4)"; c.lineWidth=1.2;
+      c.beginPath(); c.moveTo(300, y-8); c.lineTo(cx-rMid-6, cy); c.stroke();
+      c.strokeStyle = INK;
+    }
+
+    /* notas a la derecha */
+    function noteBox(label, text, yTop){
+      c.font = "700 24px 'Space Grotesk', sans-serif";
+      c.fillText(label, 1132, yTop-14);
+      c.strokeStyle = INK; c.lineWidth = 2.5;
+      c.strokeRect(1130, yTop, 500, 240);
+      c.font = "34px 'Caveat', cursive";
+      wrapText(c, text || "", 1150, yTop+48, 460, 40);
+    }
+    noteBox("Hacer Menos", state.less, 300);
+    noteBox("Hacer Más",  state.more, 640);
+
+    /* frase */
+    c.textAlign="center";
+    c.font = "40px 'Caveat', cursive";
+    var q = '"Si sabes lo que vales, ve y consigue lo que mereces, pero no se trata de lo fuerte que golpeas, sino de cuánto resistes y sigues avanzando..." — Rocky Balboa';
+    wrapText(c, q, W/2, 1150, 1500, 46);
+    c.textAlign="left";
+
+    var a = document.createElement("a");
+    a.download = "31-dias-prime.png";
+    a.href = off.toDataURL("image/png");
+    a.click();
+  });
+
+  draw(); stats();
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ draw(); }); }
+})();
+</script>
+</body>
+</html>
